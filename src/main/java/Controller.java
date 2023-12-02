@@ -1,6 +1,8 @@
 import model.Alice;
 import model.Bob;
 
+import static java.lang.System.exit;
+
 public class Controller {
     private static final int port = 8080;
 
@@ -19,8 +21,5 @@ public class Controller {
         // Start bob and alice in different threads
         new Thread(bob).start();
         new Thread(alice).start();
-
-        bob.performObliviousTransfer();
-        alice.performObliviousTransfer();
     }
 }

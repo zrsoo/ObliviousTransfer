@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.Random;
 
+import static java.lang.System.exit;
+
 public class ObliviousTransferEntity {
     protected final int port;
     protected final int base;
@@ -12,6 +14,8 @@ public class ObliviousTransferEntity {
 
     PrintWriter out;
     BufferedReader in;
+
+    protected final String END_OF_MESSAGE = "$";
 
     public ObliviousTransferEntity(int port, int base, int prime) {
         this.port = port;
@@ -47,13 +51,14 @@ public class ObliviousTransferEntity {
         try {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
+                if(inputLine.equals(END_OF_MESSAGE))
+                    break;
                 message.append(inputLine).append("\n");
             }
         }
         catch (Exception e) {
             System.out.println("Error when receiving: " + e.getMessage());
         }
-
         return message.toString();
     }
 
@@ -61,10 +66,23 @@ public class ObliviousTransferEntity {
     {
         try{
             out.println(message);
+            out.println(END_OF_MESSAGE);
         }
         catch (Exception e)
         {
             System.out.println("Error when sending: " + e.getMessage());
+        }
+    }
+
+    protected void wait(int miliseconds)
+    {
+        try{
+            Thread.sleep(miliseconds);
+        }
+        catch (InterruptedException ex)
+        {
+            System.out.println("Could not wait");
+            exit(0);
         }
     }
 }

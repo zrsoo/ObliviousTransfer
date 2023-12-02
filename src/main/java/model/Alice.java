@@ -1,9 +1,12 @@
 package model;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import static java.lang.System.exit;
 
 public class Alice extends ObliviousTransferEntity implements Runnable{
     private static final String serverAddress = "localhost";
@@ -19,6 +22,8 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
     @Override
     public void run() {
         this.openClientSocket();
+        wait(2000);
+        this.performObliviousTransfer();
     }
 
     private void openClientSocket()
@@ -37,6 +42,33 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
     }
 
     public void performObliviousTransfer() {
-        send("Yoyoyo Bobski");
+        sendA();
+        String B = receiveB();
+        closeSocket();
+    }
+
+    private void sendA()
+    {
+        String A = Integer.toString(modularExponentiation(base, exponent, prime));
+        send(A);
+        System.out.println(ALICE + "Sent A = " + base + " ^ " + exponent + " mod " + prime + " = " + A);
+    }
+
+    private String receiveB()
+    {
+        String B = receive();
+        System.out.println(ALICE + "Received B = " + B);
+        return B;
+    }
+
+    private void closeSocket()
+    {
+        try{
+            socket.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println(ALICE + "Error when closing socket");
+        }
     }
 }

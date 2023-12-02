@@ -8,8 +8,13 @@ public class Controller {
     {
         System.out.println("Salut");
 
-        Bob bob = new Bob(port);
-        Alice alice = new Alice(port);
+        int base = 3;
+        int prime = 89;
+
+        System.out.println("Using BASE: " + base + "\nUsing PRIME: " + prime);
+
+        Bob bob = new Bob(port, base, prime);
+        Alice alice = new Alice(port, base, prime);
 
         // Start bob and alice in different threads
         new Thread(bob).start();

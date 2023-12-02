@@ -6,14 +6,13 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Arrays;
 
-public class Alice implements Runnable{
+public class Alice extends ObliviousTransferEntity implements Runnable{
     private static final String serverAddress = "localhost";
     private static final String ALICE = "ALICE: ";
-    private final int port;
 
-    public Alice(int port)
+    public Alice(int port, int base, int prime)
     {
-        this.port = port;
+        super(port, base, prime);
     }
 
     @Override

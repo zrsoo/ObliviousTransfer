@@ -6,13 +6,13 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Bob implements Runnable{
+public class Bob extends ObliviousTransferEntity implements Runnable{
     private static final String BOB = "BOB: ";
-    private final int port;
 
-    public Bob(int port)
+
+    public Bob(int port, int base, int prime)
     {
-        this.port = port;
+        super(port, base, prime);
     }
 
     @Override

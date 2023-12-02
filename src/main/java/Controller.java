@@ -19,5 +19,8 @@ public class Controller {
         // Start bob and alice in different threads
         new Thread(bob).start();
         new Thread(alice).start();
+
+        bob.performObliviousTransfer();
+        alice.performObliviousTransfer();
     }
 }

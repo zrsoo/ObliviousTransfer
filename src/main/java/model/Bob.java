@@ -9,6 +9,8 @@ import java.net.Socket;
 public class Bob extends ObliviousTransferEntity implements Runnable{
     private static final String BOB = "BOB: ";
 
+    ServerSocket serverSocket;
+
 
     public Bob(int port, int base, int prime)
     {
@@ -17,29 +19,29 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
 
     @Override
     public void run() {
-        this.performObliviousTransfer(port);
+        this.openServerSocket();
     }
 
-    private void performObliviousTransfer(int port) {
-        // Open communication channel
-        try(ServerSocket serverSocket = new ServerSocket(port)){
+    private void openServerSocket()
+    {
+        try {
+            serverSocket = new ServerSocket(port);
             System.out.println(BOB + "Bob is listening, waiting for Alice...");
 
-            try (Socket aliceSocket = serverSocket.accept();
-                 PrintWriter out = new PrintWriter(aliceSocket.getOutputStream(), true);
-                 BufferedReader in = new BufferedReader(new InputStreamReader(aliceSocket.getInputStream()))) {
-                System.out.println(BOB + "Alice connected");
+            Socket aliceSocket = serverSocket.accept();
+            System.out.println(BOB + "Alice connected");
 
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    System.out.println(BOB + "Alice says: " + inputLine);
-                    out.println("Heya");
-                }
-            }
+            out = new PrintWriter(aliceSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(aliceSocket.getInputStream()));
         }
         catch (Exception e)
         {
-            System.out.println(BOB + "Error on Bob's side: " + e.getMessage());
+            System.out.println(BOB + "Error when opening server: " + e.getMessage());
         }
+    }
+
+    public void performObliviousTransfer() {
+        String message = receive();
+        System.out.println(BOB + "Received: " + message);
     }
 }

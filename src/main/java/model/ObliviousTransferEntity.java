@@ -12,6 +12,8 @@ public class ObliviousTransferEntity {
     protected final int prime;
     protected final int exponent;
 
+    protected static final String algorithm = "SHA3-256";
+
     PrintWriter out;
     BufferedReader in;
 
@@ -26,7 +28,6 @@ public class ObliviousTransferEntity {
         this.exponent = random.ints(0, prime).findFirst().getAsInt();
     }
 
-    // TODO to be tested
     protected int modularExponentiation(int base, int exponent, int modulo)
     {
         long x = 1;

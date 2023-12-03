@@ -2,6 +2,7 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.util.Random;
 
 import static java.lang.System.exit;
@@ -11,8 +12,6 @@ public class ObliviousTransferEntity {
     protected final int base;
     protected final int prime;
     protected final int exponent;
-
-    protected static final String algorithm = "SHA3-256";
 
     PrintWriter out;
     BufferedReader in;
@@ -44,6 +43,21 @@ public class ObliviousTransferEntity {
         }
 
         return (int) x % modulo;
+    }
+
+    protected String modularInverseDivision(String A, String B)
+    {
+        BigInteger bigA = new BigInteger(A);
+        BigInteger bigB = new BigInteger(B);
+        BigInteger bigP = new BigInteger(Integer.toString(prime));
+
+        // Compute A inverse mod p
+        BigInteger inverseA = bigA.modInverse(bigP);
+
+        // Compute B * (A inverse) mod p
+        BigInteger result = bigB.multiply(inverseA).mod(bigP);
+
+        return Integer.toString(result.intValue());
     }
 
     protected String receive()

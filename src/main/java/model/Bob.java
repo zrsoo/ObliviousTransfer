@@ -1,11 +1,14 @@
 package model;
 
+import encrypt.EncryptUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Bob extends ObliviousTransferEntity implements Runnable{
     private static final String BOB = "BOB: ";
@@ -54,6 +57,9 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
         String A = receiveA();
         String B = computeB(A);
         sendB(B);
+        String hashedKey = computeKey(A);
+        ArrayList<String> encryptedMessages = receiveEncryptedMessages();
+        decryptMessages(encryptedMessages, hashedKey);
         closeSocket();
     }
 
@@ -95,6 +101,52 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
     {
         send(B);
         System.out.println(BOB + "Sent B = " + B);
+    }
+
+    private ArrayList<String> receiveEncryptedMessages()
+    {
+        String M0k0 = receive();
+        String M1k1 = receive();
+
+        M0k0 = M0k0.strip();
+        M1k1 = M1k1.strip();
+
+        System.out.println(BOB + "Received encrypted messages");
+        System.out.println(BOB + "First message: " + M0k0);
+        System.out.println(BOB + "Second message: " + M1k1);
+
+        ArrayList<String> encryptedMessages = new ArrayList<>();
+
+        encryptedMessages.add(M0k0);
+        encryptedMessages.add(M1k1);
+
+        return encryptedMessages;
+    }
+
+    private String computeKey(String A)
+    {
+        int intA = Integer.parseInt(A);
+        int key = modularExponentiation(intA, exponent, prime);
+
+        String hashedKey = EncryptUtils.digest(Integer.toString(key));
+        System.out.println(BOB + "Hashing A ^ b mod prime = " + A + " ^ " + exponent + " mod " + prime + " = " + key);
+        System.out.println(BOB + "Computed hashed key kR = " + hashedKey);
+
+        return hashedKey;
+    }
+
+    private void decryptMessages(ArrayList<String> encryptedMessages, String hashedKey)
+    {
+        String M0k0 = encryptedMessages.get(0);
+        String M1k1 = encryptedMessages.get(1);
+
+        EncryptUtils encryptUtils = new EncryptUtils();
+
+        String M0k0Decrypted = encryptUtils.decrypt(M0k0, hashedKey);
+        String M1k1Decrypted = encryptUtils.decrypt(M1k1, hashedKey);
+
+        System.out.println(BOB + "Decrypted first message as: " + M0k0Decrypted);
+        System.out.println(BOB + "Decrypted second message as: " + M1k1Decrypted);
     }
 
     private void closeSocket()

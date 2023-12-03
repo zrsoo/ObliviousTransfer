@@ -8,11 +8,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Alice extends ObliviousTransferEntity implements Runnable{
     private static final String serverAddress = "localhost";
     private static final String ALICE = "ALICE: ";
+
+    private String M0;
+    private String M1;
 
     Socket socket;
 
@@ -48,6 +50,7 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         String B = receiveB();
 
         ArrayList<String> keyList = computeKeys(A, B);
+        sendEncryptedMessages(keyList);
 
         closeSocket();
     }
@@ -75,21 +78,37 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         int intB = Integer.parseInt(B);
 
         String k0val = Integer.toString(modularExponentiation(intB, exponent, prime));
-        String k1val = Integer.toString(modularExponentiation(intB / intA, exponent, prime));
+        String k1val = modularInverseDivision(A, B);
 
-        String k0 = EncryptUtils.digest(k0val, algorithm);
-        String k1 = EncryptUtils.digest(k1val, algorithm);
+        String k0 = EncryptUtils.digest(k0val);
+        String k1 = EncryptUtils.digest(k1val);
 
         System.out.println(ALICE + "Hashed B^a mod p = " + B + " ^ " + exponent + " mod " + prime +
-                " = " + k0val + " to:\n" + k0);
+                " = " + k0val + " to:" + k0);
         System.out.println(ALICE + "Hashed (B/A)^a mod p = (" + B + " / " + A + ") ^ " + exponent + " mod " + prime +
-                " = " + k1val + " to:\n" + k1);
+                " = " + k1val + " to:" + k1);
 
         ArrayList<String> keyList = new ArrayList<>();
         keyList.add(k0);
         keyList.add(k1);
 
         return keyList;
+    }
+
+    private void sendEncryptedMessages(ArrayList<String> keyList)
+    {
+        String k0 = keyList.get(0);
+        String k1 = keyList.get(1);
+
+        EncryptUtils encryptUtils = new EncryptUtils();
+
+        String M0k0 = encryptUtils.encrypt(M0, k0);
+        String M1k1 = encryptUtils.encrypt(M1, k1);
+
+        send(M0k0);
+        send(M1k1);
+
+        System.out.println(ALICE + "Sent encrypted messages to Bob");
     }
 
     private void closeSocket()
@@ -101,5 +120,13 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         {
             System.out.println(ALICE + "Error when closing socket");
         }
+    }
+
+    public void setM0(String m0) {
+        M0 = m0;
+    }
+
+    public void setM1(String m1) {
+        M1 = m1;
     }
 }

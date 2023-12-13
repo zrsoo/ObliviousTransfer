@@ -22,7 +22,7 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
     {
         super(port, base, prime);
 
-        System.out.println(BOB + "Computed secret integer a = " + exponent);
+        System.out.println(BOB + "Computed secret integer b = " + exponent);
 
         double prob = Math.random();
         if(prob > 0.5)

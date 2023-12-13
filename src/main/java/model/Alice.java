@@ -79,7 +79,7 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         int intB = Integer.parseInt(B);
 
         String k0val = Integer.toString(modularExponentiation(intB, exponent, prime));
-        String k1val = modularInverseDivision(A, B);
+        String k1val = computeK1Val(A, B);
 
         String k0 = EncryptUtils.digest(k0val);
         String k1 = EncryptUtils.digest(k1val);
@@ -121,6 +121,13 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         {
             System.out.println(ALICE + "Error when closing socket");
         }
+    }
+
+    private String computeK1Val(String A, String B)
+    {
+        String invDiv = modularInverseDivision(A, B);
+        int invDivVal = Integer.parseInt(invDiv);
+        return Integer.toString(modularExponentiation(invDivVal, exponent, prime));
     }
 
     public void setM0(String m0) {

@@ -21,6 +21,7 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
     public Alice(int port, int base, int prime)
     {
         super(port, base, prime);
+        System.out.println(ALICE + "Computed secret integer a = " + exponent);
     }
 
     @Override

@@ -72,10 +72,8 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         return B;
     }
 
-    // TODO (B/A)^a often comes as 0 because B is too small, fix
     private ArrayList<String> computeKeys(String A, String B)
     {
-        int intA = Integer.parseInt(A);
         int intB = Integer.parseInt(B);
 
         String k0val = Integer.toString(modularExponentiation(intB, exponent, prime));

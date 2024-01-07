@@ -101,3 +101,9 @@ public class ObliviousTransferEntity {
         }
     }
 }
+
+// TODO serialize PublicKey to String before sending to Bob -> send it from Alice to Bob
+// TODO deserialize back to PublicKey object on Bob's side
+// TODO also do this the other way around
+// TODO on both ends, along with any data sent, also send the digital signature (encrypted hash of sent data)
+// TODO on both ends, when receiving data, check that the computed hash of the public data matches the decrypted digital signature

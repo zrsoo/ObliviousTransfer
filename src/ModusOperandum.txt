@@ -1,0 +1,29 @@
+
+When Alice and Bob attach digital signatures to their messages in the Diffie-Hellman key exchange,
+they're not encrypting the message itself but rather creating a separate cryptographic element, the signature,
+that accompanies the message. Here's how it works:
+
+Creating the Signature:
+
+Alice computes a hash of her Diffie-Hellman public value. A hash is a fixed-length string derived from the input data
+(here, the public value), typically using a hash function like SHA-256. She then encrypts this hash with her private key.
+This encrypted hash is the digital signature. It’s important to note that this is different from encrypting the whole message.
+Only the hash is encrypted, not the public value itself.
+Attaching the Signature:
+
+Alice sends her Diffie-Hellman public value along with the digital signature to Bob.
+The public value is sent as-is (not encrypted), while the signature (the encrypted hash) is attached alongside it.
+Verifying the Signature:
+
+Upon receiving Alice’s public value and the accompanying signature, Bob first independently computes the hash of the received public value.
+He then decrypts the received signature using Alice’s public key. If the decrypted signature (the original hash value)
+matches the hash he computed, it confirms that the message was indeed from Alice and wasn’t altered in transit.
+This process does not reveal any information about Alice's private key; it merely uses the public key to verify that the
+signature was generated with Alice's private key.
+Security Implication:
+
+The security of this process relies on the fact that only Alice has her private key and can generate the valid signature.
+An attacker without access to Alice's private key cannot forge a valid signature.
+In summary, attaching a digital signature involves sending the original message (in this case, the Diffie-Hellman public value)
+along with a separate cryptographic signature, which is the encrypted hash of the message, not the message itself.
+This signature can be verified by the recipient using the sender's public key, adding a layer of authenticity and integrity to the communication.

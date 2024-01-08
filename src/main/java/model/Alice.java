@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class Alice extends ObliviousTransferEntity implements Runnable{
@@ -18,8 +17,6 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
     private String M1;
 
     Socket socket;
-
-    private PublicKey bobKey;
 
     public Alice(int port, int base, int prime)
     {
@@ -63,14 +60,14 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
     private String sendA()
     {
         String A = Integer.toString(modularExponentiation(base, exponent, prime));
-        send(A);
+        sendAuthenticated(A);
         System.out.println(ALICE + "Sent A = " + base + " ^ " + exponent + " mod " + prime + " = " + A);
         return A;
     }
 
     private String receiveB()
     {
-        String B = receive();
+        String B = receiveAuthenticated();
         B = B.strip();
         System.out.println(ALICE + "Received B = " + B);
         return B;
@@ -108,8 +105,8 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         String M0k0 = encryptUtils.encrypt(M0, k0);
         String M1k1 = encryptUtils.encrypt(M1, k1);
 
-        send(M0k0);
-        send(M1k1);
+        sendAuthenticated(M0k0);
+        sendAuthenticated(M1k1);
 
         System.out.println(ALICE + "Sent encrypted messages to Bob");
     }
@@ -146,7 +143,7 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
         System.out.println(ALICE + "Exchanging public key with Bob");
         sendKey();
         System.out.println(ALICE + "Sent key");
-        bobKey = receiveKey();
+        otherPublicKey = receiveKey();
         System.out.println(ALICE + "Received key");
     }
 }

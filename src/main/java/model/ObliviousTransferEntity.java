@@ -5,6 +5,7 @@ import encrypt.EncryptUtils;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -27,6 +28,10 @@ public abstract class ObliviousTransferEntity {
     PrivateKey privateKey;
     PublicKey publicKey;
 
+    PublicKey otherPublicKey;
+
+    Signature rsaSignature;
+
     public ObliviousTransferEntity(int port, int base, int prime) {
         this.port = port;
         this.base = base;
@@ -39,6 +44,14 @@ public abstract class ObliviousTransferEntity {
         KeyPair pair = EncryptUtils.generateKeyPair();
         privateKey = pair.getPrivate();
         publicKey = pair.getPublic();
+
+        try{
+            rsaSignature = Signature.getInstance("SHA256withRSA");
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            System.out.println("Error generating signature object, no such algorithm");
+        }
     }
 
     protected int modularExponentiation(int base, int exponent, int modulo)
@@ -88,6 +101,7 @@ public abstract class ObliviousTransferEntity {
         catch (Exception e) {
             System.out.println("Error when receiving: " + e.getMessage());
         }
+
         return message.toString();
     }
 
@@ -100,6 +114,71 @@ public abstract class ObliviousTransferEntity {
         catch (Exception e)
         {
             System.out.println("Error when sending: " + e.getMessage());
+        }
+    }
+
+    protected void sendAuthenticated(String message)
+    {
+        try{
+            // Initialize signature with private key
+            rsaSignature.initSign(privateKey);
+
+            // Update signature with message hash
+            rsaSignature.update(message.getBytes(StandardCharsets.UTF_8));
+
+            // Sign message
+            byte[] signature = rsaSignature.sign();
+
+            // Convert to String for sending
+            String signatureString = Base64.getEncoder().encodeToString(signature);
+
+            // Send signature String and message
+            send(signatureString);
+            send(message);
+        }
+        catch (InvalidKeyException | SignatureException e)
+        {
+            System.out.println("Failed to send message in authenticated mode");
+        }
+    }
+
+    protected String receiveAuthenticated()
+    {
+        try{
+            // Receive signature string
+            String signatureString = receive();
+            signatureString = signatureString.strip();
+
+            // Receive the message
+            String message = receive();
+            message = message.strip();
+
+            // Encode back to byte array
+            byte[] receivedSignature = Base64.getDecoder().decode(signatureString);
+
+            rsaSignature.initVerify(otherPublicKey);
+
+            // Update signature with message hash
+            rsaSignature.update(message.getBytes(StandardCharsets.UTF_8));
+
+            // Verify the signature:
+            // 1.) Decrypt other party's private key encrypted hash using other party's public key
+            // 2.) Hash the received message
+            // 3.) Compare the two hashes
+            boolean isSignatureValid = rsaSignature.verify(receivedSignature);
+
+            if(!isSignatureValid)
+            {
+                System.out.println("Message tampering detected, aborting");
+                exit(0);
+            }
+
+            return message;
+        }
+        catch (InvalidKeyException | SignatureException e)
+        {
+            System.out.println("Failed to receive message in authenticated mode");
+            return null;
         }
     }
 

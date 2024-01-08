@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class Bob extends ObliviousTransferEntity implements Runnable{
@@ -17,8 +16,6 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
     private final int decisionBit;
 
     ServerSocket serverSocket;
-
-    private PublicKey aliceKey;
 
     public Bob(int port, int base, int prime)
     {
@@ -69,7 +66,7 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
     }
 
     private String receiveA() {
-        String A = receive();
+        String A = receiveAuthenticated();
         A = A.strip();
         System.out.println(BOB + "Received A = " + A);
         return A;
@@ -104,14 +101,14 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
 
     private void sendB(String B)
     {
-        send(B);
+        sendAuthenticated(B);
         System.out.println(BOB + "Sent B = " + B);
     }
 
     private ArrayList<String> receiveEncryptedMessages()
     {
-        String M0k0 = receive();
-        String M1k1 = receive();
+        String M0k0 = receiveAuthenticated();
+        String M1k1 = receiveAuthenticated();
 
         M0k0 = M0k0.strip();
         M1k1 = M1k1.strip();
@@ -169,7 +166,7 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
     protected void exchangeKeys()
     {
         System.out.println(BOB + "Exchanging public key with Alice");
-        aliceKey = receiveKey();
+        otherPublicKey = receiveKey();
         System.out.println(BOB + "Received key");
         sendKey();
         System.out.println(BOB + "Sent key");

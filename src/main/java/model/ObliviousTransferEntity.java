@@ -102,7 +102,7 @@ public abstract class ObliviousTransferEntity {
             System.out.println("Error when receiving: " + e.getMessage());
         }
 
-        return message.toString();
+        return message.toString().strip();
     }
 
     protected void send(String message)
@@ -147,11 +147,9 @@ public abstract class ObliviousTransferEntity {
         try{
             // Receive signature string
             String signatureString = receive();
-            signatureString = signatureString.strip();
 
             // Receive the message
             String message = receive();
-            message = message.strip();
 
             // Encode back to byte array
             byte[] receivedSignature = Base64.getDecoder().decode(signatureString);
@@ -218,7 +216,6 @@ public abstract class ObliviousTransferEntity {
     protected PublicKey receiveKey()
     {
         String keyString = receive();
-        keyString = keyString.strip();
         return stringToPublicKey(keyString);
     }
 

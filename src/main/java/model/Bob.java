@@ -67,7 +67,6 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
 
     private String receiveA() {
         String A = receiveAuthenticated();
-        A = A.strip();
         System.out.println(BOB + "Received A = " + A);
         return A;
     }
@@ -109,9 +108,6 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
     {
         String M0k0 = receiveAuthenticated();
         String M1k1 = receiveAuthenticated();
-
-        M0k0 = M0k0.strip();
-        M1k1 = M1k1.strip();
 
         System.out.println(BOB + "Received encrypted messages");
         System.out.println(BOB + "First message: " + M0k0);

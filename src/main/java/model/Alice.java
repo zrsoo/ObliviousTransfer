@@ -68,7 +68,6 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
     private String receiveB()
     {
         String B = receiveAuthenticated();
-        B = B.strip();
         System.out.println(ALICE + "Received B = " + B);
         return B;
     }

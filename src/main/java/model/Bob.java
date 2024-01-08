@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class Bob extends ObliviousTransferEntity implements Runnable{
@@ -17,6 +18,7 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
 
     ServerSocket serverSocket;
 
+    private PublicKey aliceKey;
 
     public Bob(int port, int base, int prime)
     {
@@ -34,6 +36,7 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
     @Override
     public void run() {
         this.openServerSocket();
+        this.exchangeKeys();
         this.performObliviousTransfer();
     }
 
@@ -160,5 +163,15 @@ public class Bob extends ObliviousTransferEntity implements Runnable{
         {
             System.out.println(BOB + "Error when closing socket");
         }
+    }
+
+    @Override
+    protected void exchangeKeys()
+    {
+        System.out.println(BOB + "Exchanging public key with Alice");
+        aliceKey = receiveKey();
+        System.out.println(BOB + "Received key");
+        sendKey();
+        System.out.println(BOB + "Sent key");
     }
 }

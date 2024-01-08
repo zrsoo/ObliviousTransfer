@@ -1,13 +1,19 @@
 package model;
 
+import encrypt.EncryptUtils;
+
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.Random;
 
 import static java.lang.System.exit;
 
-public class ObliviousTransferEntity {
+public abstract class ObliviousTransferEntity {
     protected final int port;
     protected final int base;
     protected final int prime;
@@ -18,6 +24,9 @@ public class ObliviousTransferEntity {
 
     protected final String END_OF_MESSAGE = "$";
 
+    PrivateKey privateKey;
+    PublicKey publicKey;
+
     public ObliviousTransferEntity(int port, int base, int prime) {
         this.port = port;
         this.base = base;
@@ -25,6 +34,11 @@ public class ObliviousTransferEntity {
 
         Random random = new Random();
         this.exponent = random.ints(0, prime).findFirst().getAsInt();
+
+        // Generate public/private key pairs
+        KeyPair pair = EncryptUtils.generateKeyPair();
+        privateKey = pair.getPrivate();
+        publicKey = pair.getPublic();
     }
 
     protected int modularExponentiation(int base, int exponent, int modulo)
@@ -100,6 +114,42 @@ public class ObliviousTransferEntity {
             exit(0);
         }
     }
+
+    protected static String publicKeyToString(PublicKey key)
+    {
+        return Base64.getEncoder().encodeToString(key.getEncoded());
+    }
+
+    protected static PublicKey stringToPublicKey(String key)
+    {
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            return keyFactory.generatePublic(keySpec);
+        }
+        catch (NoSuchAlgorithmException | InvalidKeySpecException e)
+        {
+            System.out.println("Error when initializing key factory, no such algorithm");
+            return  null;
+        }
+    }
+
+    protected PublicKey receiveKey()
+    {
+        String keyString = receive();
+        keyString = keyString.strip();
+        return stringToPublicKey(keyString);
+    }
+
+    protected void sendKey()
+    {
+        String keyString = publicKeyToString(this.publicKey);
+        send(keyString);
+    }
+
+    protected abstract void exchangeKeys();
 }
 
 // TODO serialize PublicKey to String before sending to Bob -> send it from Alice to Bob

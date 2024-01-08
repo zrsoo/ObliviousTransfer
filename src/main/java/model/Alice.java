@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.security.*;
+import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class Alice extends ObliviousTransferEntity implements Runnable{
@@ -19,24 +19,19 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
 
     Socket socket;
 
-    PrivateKey privateKey;
-    PublicKey publicKey;
+    private PublicKey bobKey;
 
     public Alice(int port, int base, int prime)
     {
         super(port, base, prime);
         System.out.println(ALICE + "Computed secret integer a = " + exponent);
-
-        // Generate public/private key pairs
-        KeyPair pair = EncryptUtils.generateKeyPair();
-        privateKey = pair.getPrivate();
-        publicKey = pair.getPublic();
     }
 
     @Override
     public void run() {
         this.openClientSocket();
         wait(2000);
+        this.exchangeKeys();
         this.performObliviousTransfer();
     }
 
@@ -143,5 +138,15 @@ public class Alice extends ObliviousTransferEntity implements Runnable{
 
     public void setM1(String m1) {
         M1 = m1;
+    }
+
+    @Override
+    protected void exchangeKeys()
+    {
+        System.out.println(ALICE + "Exchanging public key with Bob");
+        sendKey();
+        System.out.println(ALICE + "Sent key");
+        bobKey = receiveKey();
+        System.out.println(ALICE + "Received key");
     }
 }
